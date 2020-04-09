@@ -42,28 +42,29 @@ class MultiAura implements Detection {
 
         $victim = $event->getVictim();
         $damager = $event->getPlayer();
-
-        if (isset($this->queue[$damager->getName()])) {
-            $multiAura = $this->queue[$damager->getName()];
-            $distance = $damager->getPosition()->distance($victim->getPosition());
-            if (($distance[0] <= 1.5 || $distance[1] <= 1.5) && ($distance[0] >= -1.5 || $distance[1] >= -1.5)) return;
-            if (!in_array($victim->getName(), $multiAura['targets'])) array_push($this->queue[$damager->getName()]['targets'], $victim->getName());    
-            if (sizeof($multiAura['targets']) >= 2 && ($multiAura['time'] + 0.20) >= time()) {
-                $inTime = time() - ($multiAura['time']);
-                $event->issueViolation(CheatIdentifiers::CODES['MultiAura']);
-                $event->sendAlert('MultiAura', 'Illegal attack, hit ' . sizeof($multiAura['targets']) . ' entities in ' . $inTime . ' seconds');
-            }
-            if (($multiAura['time'] + 0.25) <= time()) {
+        if ($victim instanceof Human) {
+            if (isset($this->queue[$damager->getName()])) {
+                $multiAura = $this->queue[$damager->getName()];
+                $distance = $damager->getPosition()->distance($victim->getPosition());
+                if (($distance[0] <= 1.5 || $distance[1] <= 1.5) && ($distance[0] >= -1.5 || $distance[1] >= -1.5)) return;
+                if (!in_array($victim->getName(), $multiAura['targets'])) array_push($this->queue[$damager->getName()]['targets'], $victim->getName());    
+                if (sizeof($multiAura['targets']) >= 2 && ($multiAura['time'] + 0.20) >= time()) {
+                    $inTime = time() - ($multiAura['time']);
+                    $event->issueViolation(CheatIdentifiers::CODES['MultiAura']);
+                    $event->sendAlert('MultiAura', 'Illegal attack, hit ' . sizeof($multiAura['targets']) . ' entities in ' . $inTime . ' seconds');
+                }
+                if (($multiAura['time'] + 0.25) <= time()) {
+                    $this->queue[$damager->getName()] = [
+                        "time" => time(),
+                        "targets" => []
+                    ];
+                }
+            } else {
                 $this->queue[$damager->getName()] = [
-                    "time" => time(),
-                    "targets" => []
-                ];
-            }
-        } else {
-            $this->queue[$damager->getName()] = [
                 "time" => time(),
                 "targets" => [$victim->getName()]
-            ];
+                ];
+            }
         }
     }
 
