@@ -42,7 +42,7 @@ class MultiAura implements Detection {
 
         $victim = $event->getVictim();
         $damager = $event->getPlayer();
-        if ($victim instanceof Human) {
+        if ($victim instanceof Living) {
             if (isset($this->queue[$damager->getName()])) {
                 $multiAura = $this->queue[$damager->getName()];
                 $distance = $damager->getPosition()->distance($victim->getPosition());
